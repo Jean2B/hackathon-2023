@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 
 # Route pour afficher tous les titres des articles
-@app.route('/',methods=['GET'])
+@app.route('/articles',methods=['GET'])
 def index():
     
     categorie = request.args.get('categorie')
@@ -29,7 +29,7 @@ def index():
     return render_template('index.html', articles=articles)
 
 
-@app.route('/categories')
+@app.route('/')
 def viewCat():
     # Connexion à la base de données SQLite
     conn = sqlite3.connect('articles_db.db')
@@ -54,7 +54,7 @@ def view_article(article_id):
     cursor = conn.cursor()
 
     # Récupération de l'article spécifique depuis la base de données
-    cursor.execute("SELECT titre, contenu FROM articles WHERE id=?", (article_id,))
+    cursor.execute("SELECT titre, contenu, categorie FROM articles WHERE id=?", (article_id,))
     article = cursor.fetchone()
 
     # Appel à l'API pour obtenir les articles similaires
