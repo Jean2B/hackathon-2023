@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article[0] }}</title>
+</head>
+<body>
+    <h1>{{ article[0] }}</h1>
+    <p>{{ article[1] }}</p>
+
+    <h2>Articles similaires :</h2>
+    <ul>
+        {% for similar_article in similar_articles %}
+        <li>
+            <a href="{{ url_for('view_article', article_id=similar_article[0]) }}">{{ similar_article[1] }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('index') }}">Retour à la liste des articles</a>
+</body>
+</html>
