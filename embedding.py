@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from openai import OpenAI
 from sklearn.metrics.pairwise import cosine_similarity
 import sqlite3
+import json
 
 app = Flask(__name__)
 
@@ -39,8 +40,32 @@ def get_similar_articles():
     target_text = article[0]
     categorie = article[1]
     
-    # Obtenir l'embedding du texte cible
-    target_embedding = get_embedding(target_text)
+
+    
+    # Mettre à jour le vecteur sémantique pour l'article cible si nécessaire
+    cursor.execute("SELECT vecteurs FROM articles WHERE id=?", (article_id,))
+    target_embedding = cursor.fetchone()[0]
+    if target_embedding:
+        target_embedding = json.loads(target_embedding)
+    else:
+        # Obtenir l'embedding du texte cible s'il n'est pas dans la base de données
+        target_embedding = get_embedding(target_text)
+        cursor.execute("UPDATE articles SET vecteurs = ? WHERE id = ?", (json.dumps(target_embedding), article_id))
+    
+    # Récupérer tous les textes de la base de données
+    cursor.execute("SELECT id, contenu FROM articles WHERE categorie=? LIMIT 20", (categorie,))
+    all_articles = cursor.fetchall()
+    
+    for id, contenu in all_articles:
+        # Vérifier si un vecteur sémantique est déjà présent pour cet article
+        cursor.execute("SELECT vecteurs FROM articles WHERE id=?", (id,))
+        existing_vector = cursor.fetchone()[0]
+        if not existing_vector:
+            emb = get_embedding(contenu)
+            # Mettre à jour le vecteur sémantique pour cet article
+            cursor.execute("UPDATE articles SET vecteurs = ? WHERE id = ?", (json.dumps(emb), id))
+    
+    conn.commit()  # Commit pour sauvegarder les modifications
     
     # Récupérer tous les textes et leurs embeddings de la base de données
     # On limite la requête aux 20 premiers articles
@@ -49,8 +74,18 @@ def get_similar_articles():
     
     all_embeddings = {}
     for id, contenu in all_articles:
-        emb = get_embedding(contenu)
+        # Vérifier si un vecteur sémantique est déjà présent pour cet article
+        cursor.execute("SELECT vecteurs FROM articles WHERE id=?", (id,))
+        emb = cursor.fetchone()[0]
+        if emb:
+            emb = json.loads(emb)
+        else:
+            emb = get_embedding(contenu)
+            # Mettre à jour le vecteur sémantique pour cet article
+            cursor.execute("UPDATE articles SET vecteurs = ? WHERE id = ?", (json.dumps(emb), id))
         all_embeddings[id] = emb
+        
+    conn.commit()  # Commit pour sauvegarder les modifications
     
     # Trouver les textes similaires
     similar_articles = find_similar_texts(target_embedding, all_embeddings)
