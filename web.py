@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 import sqlite3
 import requests
 
 # Configuration de l'application Flask
 app = Flask(__name__)
 
+
+
 # Route pour afficher tous les titres des articles
-@app.route('/')
+@app.route('/',methods=['GET'])
 def index():
+    
+    categorie = request.args.get('categorie')
     # Connexion à la base de données SQLite
     conn = sqlite3.connect('articles_db.db')
     cursor = conn.cursor()
 
-    # Récupération des id et titres des articles depuis la base de données
-    cursor.execute("SELECT id, titre FROM articles LIMIT 20")
+    # Récupération des informations des articles depuis la base de données
+    cursor.execute("SELECT * FROM articles where categorie =?", (categorie,))
     articles = cursor.fetchall()
 
     # Fermeture de la connexion
@@ -23,6 +27,24 @@ def index():
 
     # Affichage des titres des articles en utilisant un template HTML
     return render_template('index.html', articles=articles)
+
+
+@app.route('/categories')
+def viewCat():
+    # Connexion à la base de données SQLite
+    conn = sqlite3.connect('articles_db.db')
+    cursor = conn.cursor()
+
+    # Récupération des categorie des articles depuis la base de données
+    cursor.execute("SELECT * FROM articles ")
+    articles = cursor.fetchall()
+
+    # Fermeture de la connexion
+    conn.close()
+
+    # Affichage des categories des articles en utilisant un template HTML
+    return render_template('categories.html', articles=articles)
+
 
 # Route pour afficher le contenu d'un article spécifique
 @app.route('/article/<int:article_id>')
