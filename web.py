@@ -60,11 +60,18 @@ def view_article(article_id):
     # Appel à l'API pour obtenir les articles similaires
     similar_articles_response = requests.get(f"http://127.0.0.1:5000/get_similar_articles?id={article_id}&limit=5")
     if similar_articles_response.status_code == 200:
-        similar_articles_ids = [item[0] for item in similar_articles_response.json()]
-
+        similar_articles=[]
         # Récupération des titres des articles similaires depuis la base de données
-        cursor.execute("SELECT id, titre FROM articles WHERE id IN ({})".format(','.join(['?']*len(similar_articles_ids))), similar_articles_ids)
-        similar_articles = cursor.fetchall()
+        for item in similar_articles_response.json():
+            current_id = item[0]
+            current_score = item[1]
+            cursor.execute("SELECT titre FROM articles WHERE id=?", (current_id,))
+            current_title = cursor.fetchone()[0]
+            # On renvoie les données au format JSON
+            similar_articles.append({
+                "id": current_id,
+                "score": current_score,
+                "titre": current_title})
     else:
         similar_articles = []
 
