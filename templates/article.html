@@ -4,20 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ article[0] }}</title>
-</head>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+ </head>
+
 <body>
-    <h1>{{ article[0] }}</h1>
-    <p>{{ article[1] }}</p>
+  
 
-    <h2>Articles similaires :</h2>
-    <ul>
-        {% for similar_article in similar_articles %}
-        <li>
-            <a href="{{ url_for('view_article', article_id=similar_article[0]) }}">{{ similar_article[1] }}</a>
-        </li>
-        {% endfor %}
-    </ul>
+    
+ <header class="border-bottom lh-1 py-3">
+    <div class="row flex-nowrap justify-content-between align-items-center">
+      
+      <div class="col-4 text-center">
+      <b>
+     {{ article[2] }}
+     </b>
+      </div>
+    </div>
+  </header>
 
-    <a href="{{ url_for('index', categorie=article[2]) }}">Retour à la liste des articles</a>
+
+
+<main class="container"  style="margin-top: 30px;">
+<div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
+    <div>
+      <h1 class="display-4 fst-italic" style="font-size: 40px;"> <b>{{ article[0] }}</b></h1>
+       <hr>
+      <p class="lead my-3">{{ article[1] }}</p>
+  
+    </div>
+  </div>
+ 
+   <h2>Articles similaires :</h2>
+   <ul>
+       {% for similar_article in similar_articles %}
+       <li>
+           <a href="{{ url_for('view_article', article_id=similar_article[0]) }}">{{ similar_article[1] }}</a>
+       </li>
+       {% endfor %}
+   
+ <a href="{{ url_for('index', categorie=article[2]) }}" class="btn btn-primary" style="margin-top: 30px" >Retour à la liste des articles</a>
+</main>
+
+
+
 </body>
 </html>
